@@ -1,0 +1,7 @@
+[
+    {"input": "sjsjsjs", "error": true, "name": "non-numeric"},
+    {"input": "123421", "error": true, "name": "non-binary"},
+    {"input": "-10101", "error": true, "name": "negative"},
+    {"input": "0", "in_stdout": "0", "name": "zero"},
+    {"input": "10101011111011100111", "in_stdout": "704231"}
+]

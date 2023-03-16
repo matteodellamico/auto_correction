@@ -1,0 +1,13 @@
+[
+    {"input": "bccbdbd neeij jasdsda", "error": true, "name": "non numeric"},
+    {"numeric_input": [5, 4, 0.2], "error": true, "name": "non-triangle 1"},
+    {"numeric_input": [0.2, 5, 4], "error": true, "name": "non-triangle 2"},
+    {"numeric_input": [5, 0.2, 4], "error": true, "name": "non-triangle 3"},
+    {"numeric_input": [-3, -4, -5], "error": true, "name": "negative"},
+    {"numeric_input": [1, 1, 0], "error": true, "name": "zero"},
+    {"numeric_input": [0, -1, 1], "error": true},
+    {"numeric_input": [-1, 0, 1], "error": true},
+    {"numeric_input": [0, 1, -1], "error": true},
+    {"numeric_input": [3, 5, 4], "close_values": [6, 12], "name": "ints"},
+    {"numeric_input": [12.623, 77.2516, 68.15512], "close_values": [316.942, 158.03], "name": "floats"}
+]

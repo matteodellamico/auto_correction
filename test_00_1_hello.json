@@ -1,0 +1,2 @@
+[{"input": "Matteo", "stdout": "Come ti chiami? Ciao Matteo!\n"},
+{"input": "Robert');", "stdout": "Come ti chiami? Ciao Robert');!\n"}]

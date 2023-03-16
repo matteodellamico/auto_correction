@@ -1,0 +1,8 @@
+[
+    {"input": "asb", "error": true, "name": "non-numeric"},
+    {"input": "0", "error": true, "name": "zero"},
+    {"input": "-14", "error": true, "name": "negative"},
+    {"input": "32768", "in_stdout": "32768"},
+    {"input": "13", "in_stdout": "8"},
+    {"input": "513", "in_stdout": "512"}
+]
