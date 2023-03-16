@@ -21,7 +21,7 @@ Usage: `compile_all DIRNAME FILENAME.cpp`
 
 Will compile all instances of `DIRNAME/*/FILENAME.cpp` to `DIRNAME/*/FILENAME`.
 
-Running tests
+Specifying tests
 -------------
 
 Test specifications format: a JSON file containing a list of dictionaries, each of which is a test case.
@@ -35,3 +35,12 @@ In the dictionaries,
  * `close_values` specifies values that should be close to the numeric ones in the output (useful to handle floating point values)
 
 Some example test files are included.
+
+Running tests
+-------------
+
+`run_test.py SPEC.json EXE1 EXE2 ...` (quickly run by using shell expansion, for example:
+`./run_test.py test_dec2bin.json bindec/*/BIN_A_DEC`). 
+
+This requires the firejail sandbox to be installed (in Debian/Ubuntu, `sudo apt install firejail`). If you trust
+authors, you can disable firejail with the `--no-firejail` command line option.
