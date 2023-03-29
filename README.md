@@ -1,7 +1,8 @@
 Scripts for automatic correction
 ================================
 
-Documentation is pretty bad for now, but I guess it's better to release stuff right now and maybe make it better afterwards.
+Documentation is pretty basic for now; if you use this please contact me and I'll extend with
+whatever is needed.
 
 Renaming directories
 --------------------
@@ -42,5 +43,5 @@ Running tests
 `run_test.py SPEC.json EXE1 EXE2 ...` (quickly run by using shell expansion, for example:
 `./run_test.py test_dec2bin.json bindec/*/BIN_A_DEC`). 
 
-This requires the firejail sandbox to be installed (in Debian/Ubuntu, `sudo apt install firejail`). If you trust
-authors, you can disable firejail with the `--no-firejail` command line option.
+If code is untrusted, this supports the `firejail` sandbox (in Debian/Ubuntu, `sudo apt install firejail` to install
+it) enabled through the `--firejail` command line option.

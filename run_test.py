@@ -5,7 +5,7 @@ from bisect import bisect_left
 import difflib
 import json
 from math import isclose
-from numbers import Number
+from numbers import Real
 import re
 import subprocess
 from typing import Optional, Sequence
@@ -14,21 +14,10 @@ from typing import Optional, Sequence
 
 number_re = re.compile(r'[-+]?[0-9]+\.?[0-9]*(?:[eE][-+]?[0-9]+)?')
 
-parser = argparse.ArgumentParser()
-parser.add_argument('test_data', help="JSON file containing test specification")
-parser.add_argument('exe', nargs='+', help="executables to test")
-parser.add_argument('--verbose', default=False, action='store_true')
-parser.add_argument('--no-firejail', default=False, action='store_true',
-                    help="do not use the firejail sandbox")
-args = parser.parse_args()
 
-with open(args.test_data) as f:
-    cases = json.load(f)
-
-
-def closest(seq: Sequence[Number], x: Number) -> Number:  # https://stackoverflow.com/a/12141511
+def closest(seq: Sequence[Real], x: Real) -> Real:  # https://stackoverflow.com/a/12141511
     """
-    Assumes seq is sorted. Returns closest value to x.
+    Assumes seq is sorted. Returns the closest value to x.
 
     If two values are equally close, return the smallest number.
     """
@@ -44,17 +33,16 @@ def closest(seq: Sequence[Number], x: Number) -> Number:  # https://stackoverflo
         return before
 
 
-
-def test(spec, executable) -> Optional[str]:
+def test(spec, executable, firejail=False, verbose=False) -> Optional[str]:
     """Runs a test according to the specification. Returns an error message or None if all is ok."""
 
     spec.setdefault('error', False)  # a test case where 'error' isn't specified should return no error
     try:
-        input = spec['input'].encode()
+        stdin = spec['input'].encode()
     except KeyError:
-        input = '\n'.join(str(x) for x in spec['numeric_input']).encode()
-    cmd = executable if args.no_firejail else ['firejail', '--quiet', executable]
-    result = subprocess.run(cmd, input=input, capture_output=True)
+        stdin = '\n'.join(str(x) for x in spec['numeric_input']).encode()
+    cmd = ['firejail', '--quiet', executable] if firejail else executable
+    result = subprocess.run(cmd, input=stdin, capture_output=True)
     try:
         stdout, stderr = result.stdout.decode('utf-8'), result.stderr.decode('utf-8')
     except UnicodeDecodeError:
@@ -71,7 +59,6 @@ def test(spec, executable) -> Optional[str]:
     def diff(expected, obtained):
         return '\n'.join(difflib.unified_diff(expected.splitlines(), obtained.splitlines(),
                                               fromfile='expected', tofile='obtained', lineterm=''))
-
 
     def check_stdout(expected_stdout):
         if stdout != expected_stdout:
@@ -93,7 +80,7 @@ def test(spec, executable) -> Optional[str]:
         for v in close_values:
             closest_value = closest(values_in_output, v)
             if not isclose(v, closest_value):
-                if args.verbose:
+                if verbose:
                     print("output:", stdout)
                     print("values: ", values_in_output)
                 return f"{v} expected in the output, closest value is {closest_value}"
@@ -104,9 +91,9 @@ def test(spec, executable) -> Optional[str]:
               ('in_stdout', check_in_stdout),
               ('close_values', check_close_values)]
 
-    for fieldname, checker in checks:
+    for field_name, checker in checks:
         try:
-            spec_value = spec[fieldname]
+            spec_value = spec[field_name]
         except KeyError:
             pass
         else:
@@ -114,14 +101,31 @@ def test(spec, executable) -> Optional[str]:
             if error is not None:
                 return error
 
-for executable in args.exe:
-    print(executable)
-    for i, case in enumerate(cases):
-        case_name = f"{i} ({case['name']})" if 'name' in case else f'{i}'
-        print(f'test {case_name}:', end=' ', flush=True)
-        error = test(case, executable)
-        if error is None:
-            print("OK")
-        else:
-            print(error)
-    print()
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('test_data', help="JSON file containing test specification")
+    parser.add_argument('exe', nargs='+', help="executables to test")
+    parser.add_argument('--verbose', default=False, action='store_true')
+    parser.add_argument('--firejail', default=False, action='store_true',
+                        help="do not use the firejail sandbox")
+    args = parser.parse_args()
+
+    with open(args.test_data) as f:
+        cases = json.load(f)
+
+    for executable in args.exe:
+        print(executable)
+        for i, case in enumerate(cases):
+            case_name = f"{i} ({case['name']})" if 'name' in case else f'{i}'
+            print(f'test {case_name}:', end=' ', flush=True)
+            error = test(case, executable, args.firejail, args.verbose)
+            if error is None:
+                print("OK")
+            else:
+                print(error)
+        print()
+
+
+if __name__ == '__main__':
+    main()
